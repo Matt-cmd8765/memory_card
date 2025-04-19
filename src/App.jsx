@@ -1,35 +1,59 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState, useEffect } from "react";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
+  const [highCount, setHighCount] = useState(0);
+  const [pikachuImage, setPikachuImage] = useState("");
+
+  // Fetch Pikachu's image from PokeAPI
+  useEffect(() => {
+    const fetchPikachuImage = async () => {
+      try {
+        const response = await fetch(
+          "https://pokeapi.co/api/v2/pokemon/pikachu"
+        );
+        const data = await response.json();
+        setPikachuImage(data.sprites.front_default); // Get the front image of Pikachu
+      } catch (error) {
+        console.error("Error fetching Pikachu image:", error);
+      }
+    };
+
+    fetchPikachuImage();
+  }, []);
+
+  // this can be used when switching to cards for memeory cards
+  const incrementCount = () => {
+    setCount((prevCount) => {
+      const newCount = prevCount + 1;
+      if (newCount > highCount) {
+        setHighCount(newCount);
+      }
+      return newCount;
+    });
+  };
+
+  const resetCount = () => {
+    setCount(0);
+  };
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
+      <h1>Count Function</h1>
       <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+        <button onClick={incrementCount}>count is {count}</button>
+        <br />
+        <button onClick={resetCount}>Reset</button>
+        <h2>High Score! {highCount}</h2>
+        {pikachuImage && (
+          <div>
+            <h2>Pikachu</h2>
+            <img src={pikachuImage} alt="Pikachu" />
+          </div>
+        )}
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
