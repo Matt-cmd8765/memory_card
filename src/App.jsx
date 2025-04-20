@@ -3,26 +3,33 @@ import { useState, useEffect } from "react";
 function App() {
   const [count, setCount] = useState(0);
   const [highCount, setHighCount] = useState(0);
-  const [pikachuImage, setPikachuImage] = useState("");
+  const [pokemonSprites, setPokemonSprites] = useState([]); // Array to store 6 sprites
 
-  // Fetch Pikachu's image from PokeAPI
+  // Fetch 6 random Pokémon sprites from PokeAPI
   useEffect(() => {
-    const fetchPikachuImage = async () => {
+    const fetchPokemonSprites = async () => {
       try {
         const response = await fetch(
-          "https://pokeapi.co/api/v2/pokemon/pikachu"
-        );
+          "https://pokeapi.co/api/v2/pokemon?limit=1000"
+        ); // Fetch a list of Pokémon
         const data = await response.json();
-        setPikachuImage(data.sprites.front_default); // Get the front image of Pikachu
+        const sprites = [];
+        for (let i = 0; i < 6; i++) {
+          const PokemonUrl = data.results[i].url; // Get the URL of the random Pokémon
+          const PokemonResponse = await fetch(PokemonUrl);
+          const PokemonData = await PokemonResponse.json();
+          sprites.push(PokemonData.sprites.front_default); // Add the sprite to the array
+        }
+
+        setPokemonSprites(sprites); // Set the array of sprites
       } catch (error) {
-        console.error("Error fetching Pikachu image:", error);
+        console.error("Error fetching Pokémon sprites:", error);
       }
     };
 
-    fetchPikachuImage();
+    fetchPokemonSprites();
   }, []);
 
-  // this can be used when switching to cards for memeory cards
   const incrementCount = () => {
     setCount((prevCount) => {
       const newCount = prevCount + 1;
@@ -45,12 +52,14 @@ function App() {
         <br />
         <button onClick={resetCount}>Reset</button>
         <h2>High Score! {highCount}</h2>
-        {pikachuImage && (
-          <div>
-            <h2>Pikachu</h2>
-            <img src={pikachuImage} alt="Pikachu" />
+        <div>
+          <h2>Pokémon Sprites</h2>
+          <div className="sprites">
+            {pokemonSprites.map((sprite, index) => (
+              <img key={index} src={sprite} alt={`Pokemon ${index + 1}`} />
+            ))}
           </div>
-        )}
+        </div>
       </div>
     </>
   );
